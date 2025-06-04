@@ -3,6 +3,7 @@ import { engineModules } from './modules/engines';
 import { cannonModules } from './modules/cannons';
 import { armorModules } from './modules/armor';
 import { fuelTankModules } from './modules/fuelTanks';
+import { elecModules } from './modules/elec';
 import { specialModules } from './modules/special';
 
 // 設定データのインポート
@@ -14,6 +15,7 @@ export const moduleData = {
     cannon: cannonModules,
     armor: armorModules,
     fuel_tank: fuelTankModules,
+    elec: elecModules,
     special: specialModules
 };
 
@@ -23,5 +25,6 @@ export {
     cannonModules,
     armorModules,
     fuelTankModules,
+    elecModules,
     specialModules
 };

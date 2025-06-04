@@ -4,6 +4,7 @@ export const moduleSlots = [
     { id: 'armor', name: '装甲', locked: true },
     { id: 'fuel_tank', name: '燃料タンク', locked: true },
     { id: 'radio', name: '無線機', locked: true },
+    { id: 'elec', name: '電装系', locked: false },
     { id: 'special', name: '特殊装備', locked: false }
 ];
 

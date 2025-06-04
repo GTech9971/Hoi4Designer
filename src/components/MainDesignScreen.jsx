@@ -147,6 +147,14 @@ const MainDesignScreen = ({
                                     </>
                                 )}
 
+                                {/* Electronic equipment module highlight */}
+                                {equippedModules.elec && (
+                                    <>
+                                        <circle cx="180" cy="100" r="6" fill="#3b82f6" className="opacity-80" />
+                                        <text x="180" y="85" textAnchor="middle" className="text-xs fill-blue-400">電装系</text>
+                                    </>
+                                )}
+
                                 {/* Special equipment module highlight */}
                                 {equippedModules.special && (
                                     <>
