@@ -80,13 +80,16 @@ const MainDesignScreen = ({
                     <div className="bg-gray-800 border border-yellow-600 rounded p-4">
                         <h3 className="text-yellow-100 font-bold mb-3 border-b border-gray-600 pb-2">戦闘機の設計概体</h3>
                         <div className="space-y-2">
-                            {moduleSlots.map((slot) => (
+                            {moduleSlots.map((slot) => {
+                                const isClickable = !slot.locked && moduleData[slot.id];
+                                return (
                                 <div
                                     key={slot.id}
-                                    onClick={() => onModuleSlotClick(slot.id)}
-                                    className={`flex items-center space-x-2 bg-gray-700 p-2 rounded transition-colors ${slot.locked ? 'cursor-not-allowed' :
-                                            moduleData[slot.id] ? 'hover:bg-gray-600 cursor-pointer' : 'cursor-not-allowed opacity-50'
-                                        }`}
+                                    onClick={() => isClickable && onModuleSlotClick(slot.id)}
+                                    className={`flex items-center space-x-2 bg-gray-700 p-2 rounded transition-colors ${
+                                        slot.locked ? 'cursor-not-allowed' :
+                                        isClickable ? 'hover:bg-gray-600 cursor-pointer' : 'cursor-not-allowed opacity-50'
+                                    }`}
                                 >
                                     {slot.locked ? (
                                         <Lock size={16} className="text-gray-500" />
@@ -94,15 +97,18 @@ const MainDesignScreen = ({
                                         <div className="w-6 h-6 bg-yellow-600 rounded flex items-center justify-center">
                                             {equippedModules[slot.id] ? (
                                                 <div className="w-4 h-4 bg-green-500 rounded"></div>
+                                            ) : slot.required ? (
+                                                <div className="w-4 h-4 bg-red-500 rounded"></div>
                                             ) : (
                                                 <Plus size={12} className="text-yellow-100" />
                                             )}
                                         </div>
                                     )}
-                                    <span className={`flex-1 ${slot.locked ? 'text-gray-500' :
-                                            moduleData[slot.id] ? 'text-yellow-100' : 'text-gray-500'
-                                        }`}>
-                                        {slot.name}
+                                    <span className={`flex-1 ${
+                                        slot.locked ? 'text-gray-500' :
+                                        isClickable ? 'text-yellow-100' : 'text-gray-500'
+                                    }`}>
+                                        {slot.name}{slot.required && !equippedModules[slot.id] && <span className="text-red-400 ml-1">*</span>}
                                     </span>
                                     {equippedModules[slot.id] && moduleData[slot.id] && (
                                         <span className="text-xs text-green-400">
@@ -113,7 +119,7 @@ const MainDesignScreen = ({
                                         <span className="text-xs text-gray-500">未実装</span>
                                     )}
                                 </div>
-                            ))}
+                            )})}
                         </div>
                     </div>
                 </div>
@@ -139,11 +145,19 @@ const MainDesignScreen = ({
                                     </>
                                 )}
 
-                                {/* Gun module highlight */}
-                                {equippedModules.cannon && (
+                                {/* Primary weapon module highlight */}
+                                {equippedModules.primary_weapon && (
                                     <>
                                         <circle cx="120" cy="100" r="6" fill="#10b981" className="opacity-80" />
-                                        <text x="120" y="85" textAnchor="middle" className="text-xs fill-green-400">機関銃</text>
+                                        <text x="120" y="85" textAnchor="middle" className="text-xs fill-green-400">主兵装</text>
+                                    </>
+                                )}
+
+                                {/* Secondary weapon module highlight */}
+                                {equippedModules.secondary_weapon && (
+                                    <>
+                                        <circle cx="100" cy="90" r="4" fill="#22c55e" className="opacity-80" />
+                                        <text x="100" y="75" textAnchor="middle" className="text-xs fill-green-300">副兵装</text>
                                     </>
                                 )}
 

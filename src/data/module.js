@@ -12,7 +12,8 @@ export { moduleSlots, baseStats, baseCombatStats } from './config';
 // モジュールデータを結合
 export const moduleData = {
     engine: engineModules,
-    cannon: cannonModules,
+    primary_weapon: cannonModules,
+    secondary_weapon: cannonModules,
     armor: armorModules,
     fuel_tank: fuelTankModules,
     elec: elecModules,

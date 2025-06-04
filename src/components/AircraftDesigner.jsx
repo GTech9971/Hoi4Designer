@@ -7,14 +7,16 @@ const AircraftDesigner = () => {
     const [selectedModuleSlot, setSelectedModuleSlot] = useState(null);
     const [selectedModuleForPreview, setSelectedModuleForPreview] = useState(null);
     const [equippedModules, setEquippedModules] = useState({
-        engine: 'engine_1'
+        engine: 'engine_1',
+        primary_weapon: 'cannon_1x1'
     });
     const [previousStats, setPreviousStats] = useState(null);
     const [presetName, setPresetName] = useState('FF「ワイフィ」');
 
     const moduleSlots = [
-        { id: 'engine', name: 'エンジン', locked: false },
-        { id: 'cannon', name: '機関銃', locked: false },
+        { id: 'engine', name: 'エンジン', locked: false, required: true },
+        { id: 'primary_weapon', name: '主兵装', locked: false, required: true },
+        { id: 'secondary_weapon', name: '副兵装', locked: false, required: false },
         { id: 'armor', name: '装甲', locked: true },
         { id: 'fuel_tank', name: '燃料タンク', locked: true },
         { id: 'radio', name: '無線機', locked: true },
