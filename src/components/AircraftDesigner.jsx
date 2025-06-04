@@ -77,6 +77,12 @@ const AircraftDesigner = () => {
                     applyModuleStats(module.stats, modifiedStats, modifiedCombatStats);
                     return;
                 }
+                // 防衛から検索
+                module = moduleData[`${slotId}_defense`]?.find(m => m.id === moduleId);
+                if (module && module.stats) {
+                    applyModuleStats(module.stats, modifiedStats, modifiedCombatStats);
+                    return;
+                }
             }
             
             if (moduleCategory) {
@@ -105,6 +111,9 @@ const AircraftDesigner = () => {
                             }
                             if (!currentModule) {
                                 currentModule = moduleData[`${selectedModuleSlot}_bomb`]?.find(m => m.id === moduleId);
+                            }
+                            if (!currentModule) {
+                                currentModule = moduleData[`${selectedModuleSlot}_defense`]?.find(m => m.id === moduleId);
                             }
                             if (currentModule && currentModule.stats) {
                                 applyModuleStats(currentModule.stats, modifiedStats, modifiedCombatStats, true);

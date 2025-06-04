@@ -31,6 +31,14 @@ const WeaponTypeSelectionScreen = ({
             description: '対地攻撃に特化した兵装。CAS（近接航空支援）任務に最適で、地上目標に大きな损害を与えます。',
             advantages: ['高対地攻撃力', 'CAS特化', '幅広い破壊力'],
             disadvantages: ['重量増加', '機動性低下', '対空能力低']
+        },
+        {
+            id: 'defense',
+            name: '防衛砲塔',
+            icon: '🛡️',
+            description: '後方防衛に特化した砲塔。敵戦闘機からの攻撃に対して自衛能力を提供し、生存性を向上させます。',
+            advantages: ['防御力向上', '後方防衛', '生存性向上'],
+            disadvantages: ['重量増加', '機動性低下', '攻撃力無し']
         }
     ];
 
