@@ -81,7 +81,7 @@ const MainDesignScreen = ({
                         <h3 className="text-yellow-100 font-bold mb-3 border-b border-gray-600 pb-2">戦闘機の設計概体</h3>
                         <div className="space-y-2">
                             {moduleSlots.map((slot) => {
-                                const isClickable = !slot.locked && moduleData[slot.id];
+                                const isClickable = !slot.locked && (slot.id === 'primary_weapon' || slot.id === 'secondary_weapon' || moduleData[slot.id]);
                                 return (
                                 <div
                                     key={slot.id}
@@ -110,12 +110,28 @@ const MainDesignScreen = ({
                                     }`}>
                                         {slot.name}{slot.required && !equippedModules[slot.id] && <span className="text-red-400 ml-1">*</span>}
                                     </span>
-                                    {equippedModules[slot.id] && moduleData[slot.id] && (
+                                    {equippedModules[slot.id] && (
                                         <span className="text-xs text-green-400">
-                                            {moduleData[slot.id]?.find(m => m.id === equippedModules[slot.id])?.name || equippedModules[slot.id]}
+                                            {(() => {
+                                                // 武器スロットの場合、武器タイプを推定してモジュールを検索
+                                                if (slot.id === 'primary_weapon' || slot.id === 'secondary_weapon') {
+                                                    const moduleId = equippedModules[slot.id];
+                                                    // 機関銃から検索
+                                                    let module = moduleData[`${slot.id}_cannon`]?.find(m => m.id === moduleId);
+                                                    if (module) return module.name;
+                                                    // 魚雷から検索
+                                                    module = moduleData[`${slot.id}_torpedo`]?.find(m => m.id === moduleId);
+                                                    if (module) return module.name;
+                                                    return moduleId;
+                                                }
+                                                // 他のスロットの場合
+                                                const module = moduleData[slot.id]?.find(m => m.id === equippedModules[slot.id]);
+                                                return module?.name || equippedModules[slot.id];
+                                            })()
+                                            }
                                         </span>
                                     )}
-                                    {!moduleData[slot.id] && !slot.locked && (
+                                    {!moduleData[slot.id] && !slot.locked && slot.id !== 'primary_weapon' && slot.id !== 'secondary_weapon' && (
                                         <span className="text-xs text-gray-500">未実装</span>
                                     )}
                                 </div>

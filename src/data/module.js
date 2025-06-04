@@ -1,6 +1,7 @@
 // モジュールデータのインポート
 import { engineModules } from './modules/engines';
 import { cannonModules } from './modules/cannons';
+import { torpedoModules } from './modules/torpedos';
 import { armorModules } from './modules/armor';
 import { fuelTankModules } from './modules/fuelTanks';
 import { elecModules } from './modules/elec';
@@ -12,8 +13,10 @@ export { moduleSlots, baseStats, baseCombatStats } from './config';
 // モジュールデータを結合
 export const moduleData = {
     engine: engineModules,
-    primary_weapon: cannonModules,
-    secondary_weapon: cannonModules,
+    primary_weapon_cannon: cannonModules,
+    primary_weapon_torpedo: torpedoModules,
+    secondary_weapon_cannon: cannonModules,
+    secondary_weapon_torpedo: torpedoModules,
     armor: armorModules,
     fuel_tank: fuelTankModules,
     elec: elecModules,
@@ -24,6 +27,7 @@ export const moduleData = {
 export {
     engineModules,
     cannonModules,
+    torpedoModules,
     armorModules,
     fuelTankModules,
     elecModules,

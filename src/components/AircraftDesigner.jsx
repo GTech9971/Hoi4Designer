@@ -2,10 +2,13 @@ import React, { useState } from 'react';
 import { moduleData } from '../data/module';
 import MainDesignScreen from './MainDesignScreen';
 import ModuleSelectionScreen from './modules/ModuleSelectionScreen';
+import WeaponTypeSelectionScreen from './modules/WeaponTypeSelectionScreen';
 
 const AircraftDesigner = () => {
     const [selectedModuleSlot, setSelectedModuleSlot] = useState(null);
     const [selectedModuleForPreview, setSelectedModuleForPreview] = useState(null);
+    const [selectedWeaponType, setSelectedWeaponType] = useState(null);
+    const [showWeaponTypeSelection, setShowWeaponTypeSelection] = useState(false);
     const [equippedModules, setEquippedModules] = useState({
         engine: 'engine_1',
         primary_weapon: 'cannon_1x1'
@@ -52,7 +55,24 @@ const AircraftDesigner = () => {
 
         // 現在装備中のモジュールを適用
         Object.entries(equippedModules).forEach(([slotId, moduleId]) => {
-            const moduleCategory = moduleData[slotId];
+            let moduleCategory = moduleData[slotId];
+            
+            // 武器スロットの場合、モジュールIDから武器タイプを推定
+            if ((slotId === 'primary_weapon' || slotId === 'secondary_weapon') && !moduleCategory) {
+                // 機関銃から検索
+                let module = moduleData[`${slotId}_cannon`]?.find(m => m.id === moduleId);
+                if (module && module.stats) {
+                    applyModuleStats(module.stats, modifiedStats, modifiedCombatStats);
+                    return;
+                }
+                // 魚雷から検索
+                module = moduleData[`${slotId}_torpedo`]?.find(m => m.id === moduleId);
+                if (module && module.stats) {
+                    applyModuleStats(module.stats, modifiedStats, modifiedCombatStats);
+                    return;
+                }
+            }
+            
             if (moduleCategory) {
                 const module = moduleCategory.find(m => m.id === moduleId);
                 if (module && module.stats) {
@@ -62,17 +82,33 @@ const AircraftDesigner = () => {
         });
 
         // プレビュー用のモジュールがある場合は適用
-        if (previewModuleId && selectedModuleSlot && moduleData[selectedModuleSlot]) {
-            const previewModule = moduleData[selectedModuleSlot].find(m => m.id === previewModuleId);
-            if (previewModule && previewModule.stats) {
-                // 現在のスロットに装備されているモジュールがある場合は、その効果を先に除去
-                if (equippedModules[selectedModuleSlot]) {
-                    const currentModule = moduleData[selectedModuleSlot].find(m => m.id === equippedModules[selectedModuleSlot]);
-                    if (currentModule && currentModule.stats) {
-                        applyModuleStats(currentModule.stats, modifiedStats, modifiedCombatStats, true); // true = 除去
+        if (previewModuleId && selectedModuleSlot) {
+            const effectiveSlotKey = selectedWeaponType ? `${selectedModuleSlot}_${selectedWeaponType}` : selectedModuleSlot;
+            
+            if (moduleData[effectiveSlotKey]) {
+                const previewModule = moduleData[effectiveSlotKey].find(m => m.id === previewModuleId);
+                if (previewModule && previewModule.stats) {
+                    // 現在のスロットに装備されているモジュールがある場合は、その効果を先に除去
+                    if (equippedModules[selectedModuleSlot]) {
+                        // 武器スロットの場合、正しいモジュールを探して除去
+                        if (selectedModuleSlot === 'primary_weapon' || selectedModuleSlot === 'secondary_weapon') {
+                            const moduleId = equippedModules[selectedModuleSlot];
+                            let currentModule = moduleData[`${selectedModuleSlot}_cannon`]?.find(m => m.id === moduleId);
+                            if (!currentModule) {
+                                currentModule = moduleData[`${selectedModuleSlot}_torpedo`]?.find(m => m.id === moduleId);
+                            }
+                            if (currentModule && currentModule.stats) {
+                                applyModuleStats(currentModule.stats, modifiedStats, modifiedCombatStats, true);
+                            }
+                        } else {
+                            const currentModule = moduleData[selectedModuleSlot]?.find(m => m.id === equippedModules[selectedModuleSlot]);
+                            if (currentModule && currentModule.stats) {
+                                applyModuleStats(currentModule.stats, modifiedStats, modifiedCombatStats, true);
+                            }
+                        }
                     }
+                    applyModuleStats(previewModule.stats, modifiedStats, modifiedCombatStats);
                 }
-                applyModuleStats(previewModule.stats, modifiedStats, modifiedCombatStats);
             }
         }
 
@@ -100,6 +136,9 @@ const AircraftDesigner = () => {
         if (stats.surfaceAttack) {
             modifiedCombatStats.surfaceAttack.value += stats.surfaceAttack * multiplier;
         }
+        if (stats.navalAttack) {
+            modifiedCombatStats.navalAttack.value += stats.navalAttack * multiplier;
+        }
 
         // 一般的なステータス
         if (stats.weight) {
@@ -109,7 +148,7 @@ const AircraftDesigner = () => {
             modifiedStats.range.value += stats.range * multiplier;
         }
         if (stats.agility) {
-            modifiedStats.agility.value += (stats.agility / 100) * multiplier;
+            modifiedStats.agility.value += stats.agility * multiplier;
         }
         if (stats.reliability) {
             modifiedStats.reliability.value += stats.reliability * multiplier;
@@ -118,7 +157,7 @@ const AircraftDesigner = () => {
             modifiedStats.altitude.value += stats.altitude * multiplier;
         }
         if (stats.nightPenalty) {
-            modifiedCombatStats.nightPenalty.value += (stats.nightPenalty / 100) * multiplier;
+            modifiedCombatStats.nightPenalty.value += stats.nightPenalty * multiplier;
         }
     };
 
@@ -126,6 +165,18 @@ const AircraftDesigner = () => {
 
     const handleModuleSlotClick = (slotId) => {
         if (moduleSlots.find(s => s.id === slotId)?.locked) return;
+        
+        // 主兵装の場合、武器タイプ選択画面を表示
+        if (slotId === 'primary_weapon' || slotId === 'secondary_weapon') {
+            setPreviousStats({
+                stats: JSON.parse(JSON.stringify(modifiedStats)),
+                combatStats: JSON.parse(JSON.stringify(modifiedCombatStats))
+            });
+            setSelectedModuleSlot(slotId);
+            setShowWeaponTypeSelection(true);
+            return;
+        }
+        
         if (!moduleData[slotId]) return;
 
         // 現在のステータスを保存
@@ -150,6 +201,7 @@ const AircraftDesigner = () => {
         }
         setSelectedModuleSlot(null);
         setSelectedModuleForPreview(null);
+        setSelectedWeaponType(null);
         setPreviousStats(null);
     };
 
@@ -163,17 +215,64 @@ const AircraftDesigner = () => {
         }
         setSelectedModuleSlot(null);
         setSelectedModuleForPreview(null);
+        setSelectedWeaponType(null);
         setPreviousStats(null);
     };
 
+    const handleWeaponTypeSelect = (weaponType) => {
+        const slotKey = `${selectedModuleSlot}_${weaponType}`;
+        setSelectedWeaponType(weaponType);
+        setShowWeaponTypeSelection(false);
+        // 選択された武器タイプに応じてモジュール選択画面へ
+        // ここでselectedModuleSlotはそのまま保持し、weaponType情報を追加
+    };
+    
     const handleBack = () => {
-        setSelectedModuleSlot(null);
-        setSelectedModuleForPreview(null);
-        setPreviousStats(null);
+        if (showWeaponTypeSelection) {
+            setShowWeaponTypeSelection(false);
+            setSelectedModuleSlot(null);
+            setSelectedWeaponType(null);
+            setPreviousStats(null);
+        } else {
+            setSelectedModuleSlot(null);
+            setSelectedModuleForPreview(null);
+            setSelectedWeaponType(null);
+            setPreviousStats(null);
+        }
     };
 
+    // 武器タイプ選択画面を表示
+    if (showWeaponTypeSelection && selectedModuleSlot) {
+        return (
+            <WeaponTypeSelectionScreen
+                selectedSlot={selectedModuleSlot}
+                moduleSlots={moduleSlots}
+                onBack={handleBack}
+                onWeaponTypeSelect={handleWeaponTypeSelect}
+            />
+        );
+    }
+    
     // モジュール選択画面を表示するかどうかの判定
-    if (selectedModuleSlot && moduleData[selectedModuleSlot]) {
+    const effectiveSlotKey = selectedWeaponType ? `${selectedModuleSlot}_${selectedWeaponType}` : selectedModuleSlot;
+    if (selectedModuleSlot && !showWeaponTypeSelection && selectedWeaponType && moduleData[effectiveSlotKey]) {
+        return (
+            <ModuleSelectionScreen
+                selectedModuleSlot={effectiveSlotKey}
+                selectedModuleForPreview={selectedModuleForPreview}
+                equippedModules={equippedModules}
+                moduleSlots={moduleSlots}
+                onBack={handleBack}
+                onModulePreview={handleModulePreview}
+                onModuleConfirm={handleModuleConfirm}
+                onModuleRemove={handleModuleRemove}
+                setSelectedModuleForPreview={setSelectedModuleForPreview}
+            />
+        );
+    }
+    
+    // 従来のモジュール選択（武器以外）
+    if (selectedModuleSlot && !showWeaponTypeSelection && !selectedWeaponType && moduleData[selectedModuleSlot]) {
         return (
             <ModuleSelectionScreen
                 selectedModuleSlot={selectedModuleSlot}
