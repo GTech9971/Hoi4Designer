@@ -71,6 +71,12 @@ const AircraftDesigner = () => {
                     applyModuleStats(module.stats, modifiedStats, modifiedCombatStats);
                     return;
                 }
+                // 爆弾から検索
+                module = moduleData[`${slotId}_bomb`]?.find(m => m.id === moduleId);
+                if (module && module.stats) {
+                    applyModuleStats(module.stats, modifiedStats, modifiedCombatStats);
+                    return;
+                }
             }
             
             if (moduleCategory) {
@@ -96,6 +102,9 @@ const AircraftDesigner = () => {
                             let currentModule = moduleData[`${selectedModuleSlot}_cannon`]?.find(m => m.id === moduleId);
                             if (!currentModule) {
                                 currentModule = moduleData[`${selectedModuleSlot}_torpedo`]?.find(m => m.id === moduleId);
+                            }
+                            if (!currentModule) {
+                                currentModule = moduleData[`${selectedModuleSlot}_bomb`]?.find(m => m.id === moduleId);
                             }
                             if (currentModule && currentModule.stats) {
                                 applyModuleStats(currentModule.stats, modifiedStats, modifiedCombatStats, true);

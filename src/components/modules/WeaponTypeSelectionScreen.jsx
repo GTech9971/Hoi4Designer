@@ -23,6 +23,14 @@ const WeaponTypeSelectionScreen = ({
             description: '対艦攻撃に特化した兵装。重量はありますが、艦船に対して強力な攻撃力を発揮します。',
             advantages: ['高対艦攻撃力', '艦船撃沈能力'],
             disadvantages: ['重量増加', '機動性低下']
+        },
+        {
+            id: 'bomb',
+            name: '爆弾',
+            icon: '💣',
+            description: '対地攻撃に特化した兵装。CAS（近接航空支援）任務に最適で、地上目標に大きな损害を与えます。',
+            advantages: ['高対地攻撃力', 'CAS特化', '幅広い破壊力'],
+            disadvantages: ['重量増加', '機動性低下', '対空能力低']
         }
     ];
 

@@ -2,6 +2,7 @@
 import { engineModules } from './modules/engines';
 import { cannonModules } from './modules/cannons';
 import { torpedoModules } from './modules/torpedos';
+import { bombModules } from './modules/bombs';
 import { armorModules } from './modules/armor';
 import { fuelTankModules } from './modules/fuelTanks';
 import { elecModules } from './modules/elec';
@@ -15,8 +16,10 @@ export const moduleData = {
     engine: engineModules,
     primary_weapon_cannon: cannonModules,
     primary_weapon_torpedo: torpedoModules,
+    primary_weapon_bomb: bombModules,
     secondary_weapon_cannon: cannonModules,
     secondary_weapon_torpedo: torpedoModules,
+    secondary_weapon_bomb: bombModules,
     armor: armorModules,
     fuel_tank: fuelTankModules,
     elec: elecModules,
@@ -28,6 +31,7 @@ export {
     engineModules,
     cannonModules,
     torpedoModules,
+    bombModules,
     armorModules,
     fuelTankModules,
     elecModules,
