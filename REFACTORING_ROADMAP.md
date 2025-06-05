@@ -28,6 +28,137 @@ ModuleSelectionScreen.jsx (13KB) ← 🟡 軽微な分割
 WeaponTypeSelectionScreen.jsx (小) ← ✅ 適切なサイズ
 ```
 
+## 🔥 緊急リファクタリング計画
+
+### 🎆 **スプリント0 (最優先): TypeScript移行** 🔥🔥🔥
+**目的**: JavaScriptからTypeScriptへの全面移行で型安全性と開発効率を大幅向上
+
+**現在の問題**:
+- 型エラーのランタイム発見
+- IDEサポートの不十分（自動補完、リファクタリング）
+- インターフェースの明文化不足
+- モジュール間の結合度が曖昧
+- バグの発見が遅い
+
+#### 0.1 TypeScript環境セットアップ
+```bash
+# TypeScript関連パッケージのインストール
+npm install --save-dev typescript @types/react @types/react-dom
+npm install --save-dev @typescript-eslint/eslint-plugin @typescript-eslint/parser
+
+# tsconfig.json作成
+npx tsc --init
+```
+
+#### 0.2 コア型定義
+```typescript
+// types/aircraft.ts - エアフレームとモジュールの型
+interface Airframe {
+  id: string;
+  displayName: string;
+  size: 'light' | 'medium' | 'heavy';
+  generation: 'interwar' | 'basic' | 'improved' | 'advanced';
+  moduleSlots: ModuleSlot[];
+  baseWeight: number;
+  baseStats: BaseStats;
+  baseCombatStats: BaseCombatStats;
+}
+
+interface Module {
+  id: string;
+  name: string;
+  description: string;
+  weight?: number;
+  thrust?: number;
+  stats?: Partial<BaseStats>;
+  combatStats?: Partial<BaseCombatStats>;
+}
+
+interface ModuleSlot {
+  id: string;
+  name: string;
+  locked: boolean;
+  required?: boolean;
+  maxCount?: number;
+  allowedTypes?: WeaponType[];
+}
+
+type WeaponType = 'cannon' | 'bomb' | 'torpedo' | 'defense';
+type SlotType = 'engine' | 'primary_weapon' | 'secondary_weapon' | 'armor' | 'fuel_tank' | 'radio' | 'elec' | 'special';
+```
+
+#### 0.3 フックとユーティリティの型化
+```typescript
+// hooks/useAircraftCalculations.ts
+interface ThrustWeightResult {
+  totalThrust: number;
+  totalWeight: number;
+  isValidDesign: boolean;
+}
+
+interface CalculationHookReturn {
+  calculateThrustAndWeight: (
+    equippedModules: EquippedModules,
+    previewModuleId?: string | null,
+    selectedModuleSlot?: string | null,
+    selectedWeaponType?: WeaponType | null
+  ) => ThrustWeightResult;
+}
+
+// utils/statsCalculator.ts
+export const applyModuleStats = (
+  stats: Partial<BaseStats & BaseCombatStats>,
+  modifiedStats: BaseStats,
+  modifiedCombatStats: BaseCombatStats,
+  remove: boolean = false
+): void => {/*...*/}
+```
+
+#### 0.4 コンポーネントの型化
+```typescript
+// components/AircraftDesigner.tsx
+interface AircraftDesignerProps {}
+
+const AircraftDesigner: React.FC<AircraftDesignerProps> = () => {
+  // 型安全な状態管理
+};
+
+// components/MainDesignScreen.tsx
+interface MainDesignScreenProps {
+  selectedAirframe: Airframe;
+  currentRole: string | null;
+  presetName: string;
+  setPresetName: (name: string) => void;
+  moduleSlots: ModuleSlot[];
+  equippedModules: EquippedModules;
+  modifiedStats: BaseStats;
+  modifiedCombatStats: BaseCombatStats;
+  previousStats: PreviousStats | null;
+  totalThrust: number;
+  totalWeight: number;
+  isValidDesign: boolean;
+  onModuleSlotClick: (slotId: string) => void;
+  onAirframeChange: () => void;
+}
+```
+
+### 実装スケジュール
+- [ ] **Day 1**: TypeScript環境セットアップ、コア型定義
+- [ ] **Day 2**: ユーティリティ関数の型化 (utils/)
+- [ ] **Day 3**: カスタムフックの型化 (hooks/)
+- [ ] **Day 4**: メインコンポーネントの型化
+- [ ] **Day 5**: データファイルの型化、テストの型化
+- [ ] **テスト作成**: TypeScript対応のテスト更新
+
+**期待効果**:
+- ✅ コンパイル時の型チェックでバグの早期発見
+- ✅ IDEの強力な自動補完、リファクタリングサポート
+- ✅ インターフェースの自動文書化
+- ✅ モジュール間の結合度の明確化
+- ✅ 新人開発者のオンボーディング高速化
+
+---
+
 ## 🎯 リファクタリング戦略
 
 ### フェーズ1: 計算・状態管理の分離 (最高優先度)
