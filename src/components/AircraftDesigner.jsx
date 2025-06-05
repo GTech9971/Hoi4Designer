@@ -49,6 +49,86 @@ const AircraftDesigner = () => {
         nightPenalty: { label: '夜間ペナルティ:', value: 0.00 }
     };
 
+    const calculateThrustAndWeight = (previewModuleId = null) => {
+        let totalThrust = 0;
+        let totalWeight = 4.0; // 基本機体重量
+
+        // 現在装備中のモジュールから推力と重量を計算
+        Object.entries(equippedModules).forEach(([slotId, moduleId]) => {
+            let module = null;
+            
+            // エンジンスロットの場合
+            if (slotId === 'engine') {
+                module = moduleData[slotId]?.find(m => m.id === moduleId);
+            }
+            // 武器スロットの場合
+            else if (slotId === 'primary_weapon' || slotId === 'secondary_weapon') {
+                // 各武器タイプから検索
+                module = moduleData[`${slotId}_cannon`]?.find(m => m.id === moduleId) ||
+                        moduleData[`${slotId}_torpedo`]?.find(m => m.id === moduleId) ||
+                        moduleData[`${slotId}_bomb`]?.find(m => m.id === moduleId) ||
+                        moduleData[`${slotId}_defense`]?.find(m => m.id === moduleId);
+            }
+            // その他のスロット
+            else {
+                module = moduleData[slotId]?.find(m => m.id === moduleId);
+            }
+
+            if (module) {
+                // 推力（エンジンのみ）
+                if (module.thrust) {
+                    totalThrust += module.thrust;
+                }
+                // 重量（モジュールの重量 + stats内の重量）
+                if (module.weight) {
+                    totalWeight += module.weight;
+                }
+                if (module.stats && module.stats.weight) {
+                    totalWeight += module.stats.weight;
+                }
+            }
+        });
+
+        // プレビュー用のモジュールがある場合は適用
+        if (previewModuleId && selectedModuleSlot) {
+            const effectiveSlotKey = selectedWeaponType ? `${selectedModuleSlot}_${selectedWeaponType}` : selectedModuleSlot;
+            
+            if (moduleData[effectiveSlotKey]) {
+                const previewModule = moduleData[effectiveSlotKey].find(m => m.id === previewModuleId);
+                if (previewModule) {
+                    // 現在のスロットに装備されているモジュールがある場合は、その効果を先に除去
+                    if (equippedModules[selectedModuleSlot]) {
+                        let currentModule = null;
+                        if (selectedModuleSlot === 'engine') {
+                            currentModule = moduleData[selectedModuleSlot]?.find(m => m.id === equippedModules[selectedModuleSlot]);
+                        } else if (selectedModuleSlot === 'primary_weapon' || selectedModuleSlot === 'secondary_weapon') {
+                            const moduleId = equippedModules[selectedModuleSlot];
+                            currentModule = moduleData[`${selectedModuleSlot}_cannon`]?.find(m => m.id === moduleId) ||
+                                          moduleData[`${selectedModuleSlot}_torpedo`]?.find(m => m.id === moduleId) ||
+                                          moduleData[`${selectedModuleSlot}_bomb`]?.find(m => m.id === moduleId) ||
+                                          moduleData[`${selectedModuleSlot}_defense`]?.find(m => m.id === moduleId);
+                        } else {
+                            currentModule = moduleData[selectedModuleSlot]?.find(m => m.id === equippedModules[selectedModuleSlot]);
+                        }
+
+                        if (currentModule) {
+                            if (currentModule.thrust) totalThrust -= currentModule.thrust;
+                            if (currentModule.weight) totalWeight -= currentModule.weight;
+                            if (currentModule.stats && currentModule.stats.weight) totalWeight -= currentModule.stats.weight;
+                        }
+                    }
+                    
+                    // プレビューモジュールの効果を追加
+                    if (previewModule.thrust) totalThrust += previewModule.thrust;
+                    if (previewModule.weight) totalWeight += previewModule.weight;
+                    if (previewModule.stats && previewModule.stats.weight) totalWeight += previewModule.stats.weight;
+                }
+            }
+        }
+
+        return { totalThrust, totalWeight, isValidDesign: totalThrust >= totalWeight };
+    };
+
     const calculateStats = (previewModuleId = null) => {
         let modifiedStats = JSON.parse(JSON.stringify(baseStats));
         let modifiedCombatStats = JSON.parse(JSON.stringify(baseCombatStats));
@@ -180,6 +260,7 @@ const AircraftDesigner = () => {
     };
 
     const { modifiedStats, modifiedCombatStats } = calculateStats(selectedModuleForPreview);
+    const { totalThrust, totalWeight, isValidDesign } = calculateThrustAndWeight(selectedModuleForPreview);
 
     const handleModuleSlotClick = (slotId) => {
         if (moduleSlots.find(s => s.id === slotId)?.locked) return;
@@ -280,6 +361,9 @@ const AircraftDesigner = () => {
                 selectedModuleForPreview={selectedModuleForPreview}
                 equippedModules={equippedModules}
                 moduleSlots={moduleSlots}
+                totalThrust={totalThrust}
+                totalWeight={totalWeight}
+                isValidDesign={isValidDesign}
                 onBack={handleBack}
                 onModulePreview={handleModulePreview}
                 onModuleConfirm={handleModuleConfirm}
@@ -297,6 +381,9 @@ const AircraftDesigner = () => {
                 selectedModuleForPreview={selectedModuleForPreview}
                 equippedModules={equippedModules}
                 moduleSlots={moduleSlots}
+                totalThrust={totalThrust}
+                totalWeight={totalWeight}
+                isValidDesign={isValidDesign}
                 onBack={handleBack}
                 onModulePreview={handleModulePreview}
                 onModuleConfirm={handleModuleConfirm}
@@ -316,6 +403,9 @@ const AircraftDesigner = () => {
             modifiedStats={modifiedStats}
             modifiedCombatStats={modifiedCombatStats}
             previousStats={previousStats}
+            totalThrust={totalThrust}
+            totalWeight={totalWeight}
+            isValidDesign={isValidDesign}
             onModuleSlotClick={handleModuleSlotClick}
         />
     );

@@ -10,7 +10,9 @@ export const engineModules = [
             reliability: 1.0,
             fuelUsage: 0.1,
             cost: 2.00
-        }
+        },
+        thrust: 30,
+        weight: 5
     },
     {
         id: 'engine_2',
@@ -24,7 +26,9 @@ export const engineModules = [
             agility: 2.0,
             fuelUsage: 0.1,
             cost: 12.00
-        }
+        },
+        thrust: 50,
+        weight: 8
     },
     {
         id: 'engine_3',
@@ -37,7 +41,9 @@ export const engineModules = [
             agility: 5.0,
             fuelUsage: 0.1,
             cost: 16.00
-        }
+        },
+        thrust: 75,
+        weight: 12
     },
     {
         id: 'engine_4',
@@ -50,6 +56,8 @@ export const engineModules = [
             agility: 10.0,
             fuelUsage: 0.1,
             cost: 18.00
-        }
+        },
+        thrust: 100,
+        weight: 15
     }
 ];

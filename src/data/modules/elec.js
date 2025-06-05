@@ -9,6 +9,7 @@ export const elecModules = [
             airDefense: 1.0,
             agility: 20.0,
             nightPenalty: -20.0,
+            weight: 0.5,
             cost: 4.00
         }
     },
@@ -22,6 +23,7 @@ export const elecModules = [
             airDefense: 2.0,
             agility: 18.0,
             nightPenalty: -18.0,
+            weight: 0.5,
             cost: 4.00
         }
     },
@@ -47,6 +49,7 @@ export const elecModules = [
         stats: {
             range: 4.0,
             reliability: 1.0,
+            weight: 0.3,
             nightPenalty: -10.0,
             cost: 1.50
         }
@@ -60,6 +63,7 @@ export const elecModules = [
         stats: {
             airDefense: 4.0,
             agility: 30.0,
+            weight: 0.7,
             nightPenalty: -40.0,
             cost: 6.00
         }
@@ -73,6 +77,7 @@ export const elecModules = [
         stats: {
             airDefense: 4.0,
             agility: 35.0,
+            weight: 0.7,
             nightPenalty: -30.0,
             cost: 6.00
         }
@@ -85,7 +90,7 @@ export const elecModules = [
         description: '改良された爆撃照準器。コンピューター誘導と、自動計算、音波計算して対抗を正確に算出できる。',
         stats: {
             surfaceAttack: 6.0,
-            weight: 1.0,
+            weight: 1.2,
             nightPenalty: -20.0,
             cost: 3.00
         }
@@ -99,6 +104,7 @@ export const elecModules = [
         stats: {
             range: 6.0,
             reliability: 3.0,
+            weight: 0.4,
             nightPenalty: -20.0,
             cost: 3.00
         }

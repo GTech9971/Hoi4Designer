@@ -7,6 +7,9 @@ const ModuleSelectionScreen = ({
     selectedModuleForPreview,
     equippedModules,
     moduleSlots,
+    totalThrust,
+    totalWeight,
+    isValidDesign,
     onBack,
     onModulePreview,
     onModuleConfirm,
@@ -100,8 +103,47 @@ const ModuleSelectionScreen = ({
                 </div>
 
                 {/* Right Panel - Module Details and Confirmation */}
-                <div className="bg-gray-800 border border-yellow-600 rounded p-4">
-                    <h3 className="text-yellow-100 font-bold mb-4">詳細</h3>
+                <div className="space-y-4">
+                    {/* Thrust vs Weight Balance Display */}
+                    <div className={`border rounded p-4 ${
+                        isValidDesign 
+                            ? 'bg-gradient-to-b from-green-800 to-green-900 border-green-600' 
+                            : 'bg-gradient-to-b from-red-800 to-red-900 border-red-600'
+                    }`}>
+                        <h3 className="text-yellow-100 font-bold mb-3">推力バランス (プレビュー)</h3>
+                        <div className="space-y-2 text-xs">
+                            <div className="flex justify-between items-center">
+                                <span className="text-yellow-200">総推力:</span>
+                                <span className={`font-mono ${
+                                    isValidDesign ? 'text-green-300' : 'text-white'
+                                }`}>
+                                    {totalThrust.toFixed(1)} kN
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-yellow-200">総重量:</span>
+                                <span className={`font-mono ${
+                                    isValidDesign ? 'text-white' : 'text-red-300'
+                                }`}>
+                                    {totalWeight.toFixed(1)} t
+                                </span>
+                            </div>
+                            <div className={`flex justify-between items-center text-xs border-t pt-2 ${
+                                isValidDesign ? 'border-green-600' : 'border-red-600'
+                            } border-opacity-40`}>
+                                <span className="text-yellow-200">設計状態:</span>
+                                <span className={`font-bold ${
+                                    isValidDesign ? 'text-green-300' : 'text-red-300'
+                                }`}>
+                                    {isValidDesign ? '有効' : '無効'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Module Details */}
+                    <div className="bg-gray-800 border border-yellow-600 rounded p-4">
+                        <h3 className="text-yellow-100 font-bold mb-4">詳細</h3>
                     {selectedModuleForPreview && moduleData[selectedModuleSlot] && (
                         <div className="space-y-4">
                             {(() => {
@@ -148,7 +190,13 @@ const ModuleSelectionScreen = ({
                                             <div className="flex space-x-3">
                                                 <button
                                                     onClick={onModuleConfirm}
-                                                    className="flex-1 bg-green-700 hover:bg-green-600 px-4 py-2 rounded text-sm font-bold text-white transition-colors flex items-center justify-center space-x-2"
+                                                    className={`flex-1 px-4 py-2 rounded text-sm font-bold transition-colors flex items-center justify-center space-x-2 ${
+                                                        isValidDesign
+                                                            ? 'bg-green-700 hover:bg-green-600 text-white'
+                                                            : 'bg-gray-600 cursor-not-allowed text-gray-400'
+                                                    }`}
+                                                    disabled={!isValidDesign}
+                                                    title={!isValidDesign ? '推力不足のため使用できません' : ''}
                                                 >
                                                     <Check size={16} />
                                                     <span>決定</span>
@@ -172,6 +220,7 @@ const ModuleSelectionScreen = ({
                             <p>モジュールを選択して詳細を確認してください</p>
                         </div>
                     )}
+                    </div>
                 </div>
             </div>
         </div>

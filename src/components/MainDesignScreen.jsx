@@ -10,6 +10,9 @@ const MainDesignScreen = ({
     modifiedStats,
     modifiedCombatStats,
     previousStats,
+    totalThrust,
+    totalWeight,
+    isValidDesign,
     onModuleSlotClick
 }) => {
     const renderStatChange = (currentValue, previousValue) => {
@@ -222,6 +225,69 @@ const MainDesignScreen = ({
                         </div>
                     </div>
 
+                    {/* Thrust vs Weight System */}
+                    <div className={`border rounded p-4 ${
+                        isValidDesign 
+                            ? 'bg-gradient-to-b from-green-800 to-green-900 border-green-600' 
+                            : 'bg-gradient-to-b from-red-800 to-red-900 border-red-600'
+                    }`}>
+                        <h3 className={`text-yellow-100 font-bold mb-3 border-b border-opacity-60 pb-2 ${
+                            isValidDesign ? 'border-green-600' : 'border-red-600'
+                        }`}>推力バランス</h3>
+                        <div className="space-y-2">
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-yellow-200">総推力:</span>
+                                <span className={`font-mono ${
+                                    isValidDesign ? 'text-green-300' : 'text-white'
+                                }`}>
+                                    {totalThrust.toFixed(1)} kN
+                                </span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs">
+                                <span className="text-yellow-200">総重量:</span>
+                                <span className={`font-mono ${
+                                    isValidDesign ? 'text-white' : 'text-red-300'
+                                }`}>
+                                    {totalWeight.toFixed(1)} t
+                                </span>
+                            </div>
+                            <div className={`flex justify-between items-center text-xs border-t pt-2 ${
+                                isValidDesign ? 'border-green-600' : 'border-red-600'
+                            } border-opacity-40`}>
+                                <span className="text-yellow-200">設計状態:</span>
+                                <span className={`font-bold ${
+                                    isValidDesign ? 'text-green-300' : 'text-red-300'
+                                }`}>
+                                    {isValidDesign ? '有効' : '無効'}
+                                </span>
+                            </div>
+                            {!isValidDesign && (
+                                <div className="text-xs text-red-300 bg-red-900 bg-opacity-50 p-2 rounded mt-2">
+                                    ⚠️ 推力不足: エンジンを強化するか、重量を削減してください
+                                </div>
+                            )}
+                            <div className="mt-3">
+                                <div className="text-xs text-gray-300 mb-1">推力/重量比:</div>
+                                <div className="w-full bg-gray-700 rounded-full h-3 relative">
+                                    <div 
+                                        className={`h-3 rounded-full transition-all duration-300 ${
+                                            isValidDesign ? 'bg-gradient-to-r from-green-600 to-green-400' : 'bg-gradient-to-r from-red-600 to-red-400'
+                                        }`}
+                                        style={{
+                                            width: `${Math.min((totalThrust / totalWeight) * 100, 200)}%`
+                                        }}
+                                    ></div>
+                                    <div className="absolute top-0 left-full w-1 h-3 bg-yellow-400 opacity-60"></div>
+                                </div>
+                                <div className="text-xs text-gray-400 mt-1 flex justify-between">
+                                    <span>0</span>
+                                    <span className="text-yellow-400">1.0</span>
+                                    <span>2.0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Combat Stats */}
                     <div className="bg-gradient-to-b from-yellow-800 to-yellow-900 border border-yellow-600 rounded p-4">
                         <h3 className="text-yellow-100 font-bold mb-3 border-b border-yellow-600 pb-2">その他統計</h3>
@@ -281,7 +347,15 @@ const MainDesignScreen = ({
                         </div>
                     </div>
                     <div className="flex space-x-2">
-                        <button className="bg-green-700 hover:bg-green-600 px-4 py-2 rounded text-xs font-bold">
+                        <button 
+                            className={`px-4 py-2 rounded text-xs font-bold transition-colors ${
+                                isValidDesign 
+                                    ? 'bg-green-700 hover:bg-green-600 text-white' 
+                                    : 'bg-gray-600 cursor-not-allowed text-gray-400'
+                            }`}
+                            disabled={!isValidDesign}
+                            title={!isValidDesign ? '推力不足のため保存できません' : ''}
+                        >
                             保存
                         </button>
                         <button className="bg-gray-700 hover:bg-gray-600 px-4 py-2 rounded text-xs">
