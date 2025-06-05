@@ -4,6 +4,7 @@ import { moduleData } from '../data/module';
 
 const MainDesignScreen = ({
     selectedAirframe,
+    currentRole,
     presetName,
     setPresetName,
     moduleSlots,
@@ -44,12 +45,25 @@ const MainDesignScreen = ({
                 <div className="flex items-center space-x-4">
                     <h1 className="text-xl font-bold text-yellow-100">飛行機の設計社</h1>
                     {selectedAirframe && (
-                        <div className="flex items-center space-x-2">
-                            <span className="text-2xl">{selectedAirframe.icon}</span>
-                            <div>
-                                <div className="text-sm font-bold text-yellow-100">{selectedAirframe.name}</div>
-                                <div className="text-xs text-yellow-200">基本重量: {selectedAirframe.baseWeight}t</div>
+                        <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2">
+                                <span className="text-2xl">{selectedAirframe.icon}</span>
+                                <div>
+                                    <div className="text-sm font-bold text-yellow-100">{selectedAirframe.displayName}</div>
+                                    <div className="text-xs text-yellow-200">
+                                        {selectedAirframe.year} | 基本重量: {selectedAirframe.baseWeight.toFixed(1)}t
+                                    </div>
+                                </div>
                             </div>
+                            {currentRole && (
+                                <div className="flex items-center space-x-2 bg-gray-800 px-3 py-1 rounded border border-gray-600">
+                                    <span className="text-lg">{currentRole.icon}</span>
+                                    <div>
+                                        <div className="text-sm font-bold text-green-400">{currentRole.name}</div>
+                                        <div className="text-xs text-gray-400">主兵装による役割</div>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                     <div className="flex items-center space-x-2">

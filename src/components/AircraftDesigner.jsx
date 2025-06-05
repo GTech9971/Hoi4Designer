@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { moduleData } from '../data/module';
-import { airframeTypes } from '../data/airframes/airframeTypes';
+import { getAircraftRole } from '../data/airframes/airframeTypes';
 import AirframeSelectionScreen from './AirframeSelectionScreen';
 import MainDesignScreen from './MainDesignScreen';
 import ModuleSelectionScreen from './modules/ModuleSelectionScreen';
@@ -87,6 +87,29 @@ const AircraftDesigner = () => {
     };
 
     const { moduleSlots, baseWeight, baseStats, baseCombatStats } = getAirframeConfig();
+
+    // 現在の主兵装に基づく機体役割を取得
+    const getCurrentAircraftRole = () => {
+        if (!selectedAirframe || !equippedModules.primary_weapon) {
+            return null;
+        }
+        
+        // 主兵装のタイプを特定
+        const weaponId = equippedModules.primary_weapon;
+        let weaponType = null;
+        
+        if (moduleData.primary_weapon_cannon?.find(m => m.id === weaponId)) {
+            weaponType = 'cannon';
+        } else if (moduleData.primary_weapon_bomb?.find(m => m.id === weaponId)) {
+            weaponType = 'bomb';
+        } else if (moduleData.primary_weapon_torpedo?.find(m => m.id === weaponId)) {
+            weaponType = 'torpedo';
+        }
+        
+        return getAircraftRole(selectedAirframe, weaponType);
+    };
+
+    const currentRole = getCurrentAircraftRole();
 
     const calculateThrustAndWeight = (previewModuleId = null) => {
         let totalThrust = 0;
@@ -308,7 +331,7 @@ const AircraftDesigner = () => {
         setEquippedModules({
             engine: 'engine_1'
         });
-        setPresetName(`${airframe.name}「ワイフィ」`);
+        setPresetName(`${airframe.displayName}「ワイフィ」`);
     };
 
     // 武器タイプの制限チェック
@@ -463,6 +486,7 @@ const AircraftDesigner = () => {
     return (
         <MainDesignScreen
             selectedAirframe={selectedAirframe}
+            currentRole={currentRole}
             presetName={presetName}
             setPresetName={setPresetName}
             moduleSlots={moduleSlots}
