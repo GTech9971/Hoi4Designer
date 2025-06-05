@@ -3,6 +3,7 @@ import { Lock, Plus, X, ChevronUp, Star, TrendingUp, TrendingDown } from 'lucide
 import { moduleData } from '../data/module';
 
 const MainDesignScreen = ({
+    selectedAirframe,
     presetName,
     setPresetName,
     moduleSlots,
@@ -13,7 +14,8 @@ const MainDesignScreen = ({
     totalThrust,
     totalWeight,
     isValidDesign,
-    onModuleSlotClick
+    onModuleSlotClick,
+    onAirframeChange
 }) => {
     const renderStatChange = (currentValue, previousValue) => {
         if (!previousStats) return null;
@@ -41,6 +43,15 @@ const MainDesignScreen = ({
             <div className="flex items-center justify-between mb-4 bg-gradient-to-r from-yellow-800 to-yellow-700 p-3 rounded border border-yellow-600">
                 <div className="flex items-center space-x-4">
                     <h1 className="text-xl font-bold text-yellow-100">飛行機の設計社</h1>
+                    {selectedAirframe && (
+                        <div className="flex items-center space-x-2">
+                            <span className="text-2xl">{selectedAirframe.icon}</span>
+                            <div>
+                                <div className="text-sm font-bold text-yellow-100">{selectedAirframe.name}</div>
+                                <div className="text-xs text-yellow-200">基本重量: {selectedAirframe.baseWeight}t</div>
+                            </div>
+                        </div>
+                    )}
                     <div className="flex items-center space-x-2">
                         <span className="text-yellow-200 text-sm">プリセット:</span>
                         <span className="text-yellow-100 font-bold bg-gray-800 px-3 py-1 rounded border border-gray-600">
@@ -49,6 +60,14 @@ const MainDesignScreen = ({
                     </div>
                 </div>
                 <div className="flex space-x-2">
+                    {onAirframeChange && (
+                        <button 
+                            onClick={onAirframeChange}
+                            className="text-yellow-100 hover:text-white bg-blue-700 hover:bg-blue-600 px-3 py-1 rounded text-sm transition-colors"
+                        >
+                            エアフレーム変更
+                        </button>
+                    )}
                     <button className="text-yellow-100 hover:text-white">
                         <ChevronUp size={20} />
                     </button>

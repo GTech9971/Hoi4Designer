@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 const WeaponTypeSelectionScreen = ({
     selectedSlot,
     moduleSlots,
+    isWeaponTypeAllowed,
     onBack,
     onWeaponTypeSelect
 }) => {
@@ -59,12 +60,23 @@ const WeaponTypeSelectionScreen = ({
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {weaponTypes.map((weaponType) => (
-                    <div
-                        key={weaponType.id}
-                        onClick={() => onWeaponTypeSelect(weaponType.id)}
-                        className="bg-gray-800 border border-yellow-600 rounded p-6 hover:bg-gray-700 cursor-pointer transition-colors"
-                    >
+                {weaponTypes.map((weaponType) => {
+                    const isAllowed = isWeaponTypeAllowed ? isWeaponTypeAllowed(selectedSlot, weaponType.id) : true;
+                    return (
+                        <div
+                            key={weaponType.id}
+                            onClick={() => isAllowed && onWeaponTypeSelect(weaponType.id)}
+                            className={`border rounded p-6 transition-colors ${
+                                isAllowed 
+                                    ? 'bg-gray-800 border-yellow-600 hover:bg-gray-700 cursor-pointer' 
+                                    : 'bg-gray-800 border-red-600 opacity-50 cursor-not-allowed'
+                            }`}
+                        >
+                            {!isAllowed && (
+                                <div className="mb-4 p-2 bg-red-900 bg-opacity-50 border border-red-600 rounded">
+                                    <div className="text-red-300 text-sm font-bold">⚠️ このエアフレームでは使用不可</div>
+                                </div>
+                            )}
                         <div className="flex items-center space-x-4 mb-4">
                             <div className="text-4xl">{weaponType.icon}</div>
                             <div>
@@ -109,13 +121,21 @@ const WeaponTypeSelectionScreen = ({
 
                         <div className="mt-6 pt-4 border-t border-gray-600">
                             <div className="flex justify-center">
-                                <button className="bg-yellow-600 hover:bg-yellow-500 px-6 py-2 rounded font-bold text-gray-900 transition-colors">
+                                <button 
+                                    className={`px-6 py-2 rounded font-bold transition-colors ${
+                                        isAllowed
+                                            ? 'bg-yellow-600 hover:bg-yellow-500 text-gray-900'
+                                            : 'bg-gray-600 text-gray-400 cursor-not-allowed'
+                                    }`}
+                                    disabled={!isAllowed}
+                                >
                                     {weaponType.name}を選択
                                 </button>
                             </div>
                         </div>
-                    </div>
-                ))}
+                        </div>
+                    );
+                })}
             </div>
         </div>
     );

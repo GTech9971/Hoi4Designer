@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { moduleData } from '../data/module';
+import { airframeTypes } from '../data/airframes/airframeTypes';
+import AirframeSelectionScreen from './AirframeSelectionScreen';
 import MainDesignScreen from './MainDesignScreen';
 import ModuleSelectionScreen from './modules/ModuleSelectionScreen';
 import WeaponTypeSelectionScreen from './modules/WeaponTypeSelectionScreen';
 
 const AircraftDesigner = () => {
+    const [selectedAirframe, setSelectedAirframe] = useState(null);
     const [selectedModuleSlot, setSelectedModuleSlot] = useState(null);
     const [selectedModuleForPreview, setSelectedModuleForPreview] = useState(null);
     const [selectedWeaponType, setSelectedWeaponType] = useState(null);
@@ -16,42 +19,78 @@ const AircraftDesigner = () => {
     const [previousStats, setPreviousStats] = useState(null);
     const [presetName, setPresetName] = useState('FF「ワイフィ」');
 
-    const moduleSlots = [
-        { id: 'engine', name: 'エンジン', locked: false, required: true },
-        { id: 'primary_weapon', name: '主兵装', locked: false, required: true },
-        { id: 'secondary_weapon', name: '副兵装', locked: false, required: false },
-        { id: 'armor', name: '装甲', locked: true },
-        { id: 'fuel_tank', name: '燃料タンク', locked: true },
-        { id: 'radio', name: '無線機', locked: true },
-        { id: 'elec', name: '電装系', locked: false },
-        { id: 'special', name: '特殊装備', locked: false }
-    ];
+    // エアフレームに基づくモジュールスロットとベースステータスを取得
+    const getAirframeConfig = () => {
+        if (!selectedAirframe) {
+            // デフォルトの戦闘機設定
+            return {
+                moduleSlots: [
+                    { id: 'engine', name: 'エンジン', locked: false, required: true, maxCount: 1 },
+                    { id: 'primary_weapon', name: '主兵装', locked: false, required: true, allowedTypes: ['cannon'], maxCount: 1 },
+                    { id: 'secondary_weapon', name: '副兵装', locked: false, required: false, allowedTypes: ['cannon'], maxCount: 1 },
+                    { id: 'armor', name: '装甲', locked: true },
+                    { id: 'fuel_tank', name: '燃料タンク', locked: true },
+                    { id: 'radio', name: '無線機', locked: true },
+                    { id: 'elec', name: '電装系', locked: false, maxCount: 1 },
+                    { id: 'special', name: '特殊装備', locked: false, maxCount: 2 }
+                ],
+                baseWeight: 4.0,
+                baseStats: {
+                    maxSpeed: { label: '最高速度:', value: 280.0, unit: 'km/h' },
+                    altitude: { label: '高度:', value: 400, unit: 'km' },
+                    agility: { label: '機動性:', value: 0.24 },
+                    weight: { label: '重量:', value: 4.0 },
+                    reliability: { label: '信頼性:', value: 11.0 },
+                    range: { label: '航続距離:', value: 1.00 },
+                    fuelUsage: { label: '燃料使用量:', value: 0.0 }
+                },
+                baseCombatStats: {
+                    airAttack: { label: '対空攻撃力:', value: 7.0 },
+                    airDefense: { label: '対空防御力:', value: 0.0 },
+                    surfaceAttack: { label: '対地攻撃力:', value: 36.8 },
+                    surfaceDefense: { label: '対地防御力:', value: 1.00 },
+                    navalAttack: { label: '対艦攻撃力:', value: 1.00 },
+                    navalDefense: { label: '対艦防御力:', value: 1.00 },
+                    strategicBombing: { label: '戦略爆撃:', value: 1.00 },
+                    casualtyRate: { label: '損耗率:', value: 0.0 },
+                    nightPenalty: { label: '夜間ペナルティ:', value: 0.00 }
+                }
+            };
+        }
 
-    const baseStats = {
-        maxSpeed: { label: '最高速度:', value: 280.0, unit: 'km/h' },
-        altitude: { label: '高度:', value: 400, unit: 'km' },
-        agility: { label: '機動性:', value: 0.24 },
-        weight: { label: '重量:', value: 4.0 },
-        reliability: { label: '信頼性:', value: 11.0 },
-        range: { label: '航続距離:', value: 1.00 },
-        fuelUsage: { label: '燃料使用量:', value: 0.0 }
+        // 選択されたエアフレームの設定を使用
+        const airframe = selectedAirframe;
+        return {
+            moduleSlots: airframe.moduleSlots,
+            baseWeight: airframe.baseWeight,
+            baseStats: {
+                maxSpeed: { label: '最高速度:', value: airframe.baseStats.maxSpeed, unit: 'km/h' },
+                altitude: { label: '高度:', value: airframe.baseStats.altitude, unit: 'km' },
+                agility: { label: '機動性:', value: airframe.baseStats.agility },
+                weight: { label: '重量:', value: airframe.baseWeight },
+                reliability: { label: '信頼性:', value: airframe.baseStats.reliability },
+                range: { label: '航続距離:', value: airframe.baseStats.range },
+                fuelUsage: { label: '燃料使用量:', value: airframe.baseStats.fuelUsage }
+            },
+            baseCombatStats: {
+                airAttack: { label: '対空攻撃力:', value: airframe.baseCombatStats.airAttack },
+                airDefense: { label: '対空防御力:', value: airframe.baseCombatStats.airDefense },
+                surfaceAttack: { label: '対地攻撃力:', value: airframe.baseCombatStats.surfaceAttack },
+                surfaceDefense: { label: '対地防御力:', value: airframe.baseCombatStats.surfaceDefense },
+                navalAttack: { label: '対艦攻撃力:', value: airframe.baseCombatStats.navalAttack },
+                navalDefense: { label: '対艦防御力:', value: airframe.baseCombatStats.navalDefense },
+                strategicBombing: { label: '戦略爆撃:', value: airframe.baseCombatStats.strategicBombing },
+                casualtyRate: { label: '損耗率:', value: airframe.baseCombatStats.casualtyRate },
+                nightPenalty: { label: '夜間ペナルティ:', value: airframe.baseCombatStats.nightPenalty }
+            }
+        };
     };
 
-    const baseCombatStats = {
-        airAttack: { label: '対空攻撃力:', value: 7.0 },
-        airDefense: { label: '対空防御力:', value: 0.0 },
-        surfaceAttack: { label: '対地攻撃力:', value: 36.8 },
-        surfaceDefense: { label: '対地防御力:', value: 1.00 },
-        navalAttack: { label: '対艦攻撃力:', value: 1.00 },
-        navalDefense: { label: '対艦防御力:', value: 1.00 },
-        strategicBombing: { label: '戦略爆撃:', value: 1.00 },
-        casualtyRate: { label: '損耗率:', value: 0.0 },
-        nightPenalty: { label: '夜間ペナルティ:', value: 0.00 }
-    };
+    const { moduleSlots, baseWeight, baseStats, baseCombatStats } = getAirframeConfig();
 
     const calculateThrustAndWeight = (previewModuleId = null) => {
         let totalThrust = 0;
-        let totalWeight = 4.0; // 基本機体重量
+        let totalWeight = baseWeight; // エアフレームの基本機体重量
 
         // 現在装備中のモジュールから推力と重量を計算
         Object.entries(equippedModules).forEach(([slotId, moduleId]) => {
@@ -262,6 +301,23 @@ const AircraftDesigner = () => {
     const { modifiedStats, modifiedCombatStats } = calculateStats(selectedModuleForPreview);
     const { totalThrust, totalWeight, isValidDesign } = calculateThrustAndWeight(selectedModuleForPreview);
 
+    // エアフレーム選択ハンドラー
+    const handleAirframeSelect = (airframe) => {
+        setSelectedAirframe(airframe);
+        // エアフレーム変更時に装備をリセット
+        setEquippedModules({
+            engine: 'engine_1'
+        });
+        setPresetName(`${airframe.name}「ワイフィ」`);
+    };
+
+    // 武器タイプの制限チェック
+    const isWeaponTypeAllowed = (slotId, weaponType) => {
+        const slot = moduleSlots.find(s => s.id === slotId);
+        if (!slot || !slot.allowedTypes) return true;
+        return slot.allowedTypes.includes(weaponType);
+    };
+
     const handleModuleSlotClick = (slotId) => {
         if (moduleSlots.find(s => s.id === slotId)?.locked) return;
         
@@ -340,12 +396,22 @@ const AircraftDesigner = () => {
         }
     };
 
+    // エアフレームが選択されていない場合はエアフレーム選択画面を表示
+    if (!selectedAirframe) {
+        return (
+            <AirframeSelectionScreen
+                onAirframeSelect={handleAirframeSelect}
+            />
+        );
+    }
+
     // 武器タイプ選択画面を表示
     if (showWeaponTypeSelection && selectedModuleSlot) {
         return (
             <WeaponTypeSelectionScreen
                 selectedSlot={selectedModuleSlot}
                 moduleSlots={moduleSlots}
+                isWeaponTypeAllowed={isWeaponTypeAllowed}
                 onBack={handleBack}
                 onWeaponTypeSelect={handleWeaponTypeSelect}
             />
@@ -396,6 +462,7 @@ const AircraftDesigner = () => {
     // メイン設計画面を表示
     return (
         <MainDesignScreen
+            selectedAirframe={selectedAirframe}
             presetName={presetName}
             setPresetName={setPresetName}
             moduleSlots={moduleSlots}
@@ -407,6 +474,7 @@ const AircraftDesigner = () => {
             totalWeight={totalWeight}
             isValidDesign={isValidDesign}
             onModuleSlotClick={handleModuleSlotClick}
+            onAirframeChange={() => setSelectedAirframe(null)}
         />
     );
 };
