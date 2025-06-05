@@ -156,12 +156,24 @@ const StatusIndicator = ({ isValid, message }) => {/*...*/}
 
 ## 📋 実装ロードマップ
 
-### 🚀 スプリント1 (1-2日): 計算ロジック分離
-- [ ] `hooks/useAircraftCalculations.js`作成
-- [ ] `utils/statsCalculator.js`作成
-- [ ] `utils/moduleHelpers.js`作成
-- [ ] `AircraftDesigner.jsx`からロジック移行
-- [ ] **テスト作成**: 計算ロジックの単体テスト
+### ✅ スプリント1 (完了): 計算ロジック分離
+- [x] `hooks/useAircraftCalculations.js`作成
+- [x] `utils/statsCalculator.js`作成
+- [x] `utils/moduleHelpers.js`作成
+- [x] `hooks/useStatsCalculations.js`作成
+- [x] `hooks/useAircraftState.js`作成
+- [x] `hooks/useAircraftDesignCalculations.js`作成（統合フック）
+- [x] `AircraftDesigner.jsx`からロジック移行
+- [x] **テスト作成**: 計算ロジックの単体テスト
+
+**実装詳細**:
+- 推力・重量計算ロジックを`useAircraftCalculations`フックに分離
+- ステータス計算ロジックを`useStatsCalculations`フックに分離
+- 状態管理を`useAircraftState`フックに分離
+- モジュール検索・検証ヘルパー関数を`utils/moduleHelpers.js`に分離
+- 統計適用ロジックを`utils/statsCalculator.js`に分離
+- `AircraftDesigner.jsx`のサイズを大幅削減（約250行削除）
+- 基本的な単体テスト作成
 
 ### 🚀 スプリント2 (2-3日): 統計表示コンポーネント分離  
 - [ ] `components/stats/BasicStatsPanel.jsx`作成
